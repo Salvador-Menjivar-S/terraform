@@ -38,12 +38,8 @@ jobs:
       run: terraform init
 
 # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Fmt Check
-      run: |
-        if [ -n "$(terraform fmt -write=true -diff=true)" ]; then
-          echo "Terraform files need to be formatted. Please run 'terraform fmt' locally and push changes."
-          exit 1
-        fi
+    - name: Terraform Format
+      run: terraform fmt -check
 
 
     # Generates an execution plan for Terraform
