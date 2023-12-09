@@ -25,7 +25,7 @@ jobs:
 
     - uses: 'google-github-actions/auth@v2'
       with:
-        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
         
     # Install the latest version of Terraform CLI
     - name: Setup Terraform
@@ -36,6 +36,15 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
+
+# Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Fmt Check
+      run: |
+        if [ -n "$(terraform fmt -write=true -diff=true)" ]; then
+          echo "Terraform files need to be formatted. Please run 'terraform fmt' locally and push changes."
+          exit 1
+        fi
+
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
