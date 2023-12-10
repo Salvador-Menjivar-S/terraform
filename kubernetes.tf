@@ -1,54 +1,107 @@
+# Kubernetes Deployment for Backend Service
+resource "kubernetes_deployment" "backend" {
+  metadata {
+    name = "backend-deployment"
+  }
 
+  spec {
+    replicas = 3
 
-resource "google_container_cluster" "primary" {
-  name                     = "primary"
-  location                 = "us-central1-a"
-  remove_default_node_pool = true
-  initial_node_count       = 1
-  network                  = google_compute_network.main.self_link
-  subnetwork               = google_compute_subnetwork.private.self_link
-  logging_service          = "logging.googleapis.com/kubernetes"
-  monitoring_service       = "monitoring.googleapis.com/kubernetes"
-  networking_mode          = "VPC_NATIVE"
-
-  # Optional, if you want multi-zonal cluster
-  node_locations = [
-    "us-central1-b"
-  ]
-
-  addons_config {
-    http_load_balancing {
-      disabled = true
+    selector {
+      match_labels = {
+        app = "backend"
+      }
     }
-    horizontal_pod_autoscaling {
-      disabled = false
+
+    template {
+      metadata {
+        labels = {
+          app = "backend"
+        }
+      }
+
+      spec {
+        # Define the containers for your backend service
+        container {
+          name  = "backend-container"
+          image = "your-registry/backend-image:latest"
+          # Additional container configurations
+        }
+      }
     }
   }
+}
 
-  release_channel {
-    channel = "REGULAR"
+# Define a Kubernetes Service for Backend Service
+resource "kubernetes_service" "backend" {
+  metadata {
+    name = "backend-service"
   }
 
-  workload_identity_config {
-    workload_pool = "smenjivar-dev.svc.id.goog"
+  spec {
+    selector = {
+      app = "backend"
+    }
+
+    # Define the ports for your backend service
+    port {
+      protocol    = "TCP"
+      port        = 80
+      target_port = 8080  # Adjust based on your backend application's port
+    }
+  }
+}
+
+# Define a Kubernetes Deployment for Frontend Service
+resource "kubernetes_deployment" "frontend" {
+  metadata {
+    name = "frontend-deployment"
   }
 
-  ip_allocation_policy {
-    cluster_secondary_range_name  = "k8s-pod-range"
-    services_secondary_range_name = "k8s-service-range"
+  spec {
+    replicas = 3
+
+    selector {
+      match_labels = {
+        app = "frontend"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "frontend"
+        }
+      }
+
+      spec {
+        # Define the containers for your frontend service
+        container {
+          name  = "frontend-container"
+          image = "your-registry/frontend-image:latest"
+          # Additional container configurations
+        }
+      }
+    }
+  }
+}
+
+# Define a Kubernetes Service for Frontend Service
+resource "kubernetes_service" "frontend" {
+  metadata {
+    name = "frontend-service"
   }
 
-  private_cluster_config {
-    enable_private_nodes    = true
-    enable_private_endpoint = false
-    master_ipv4_cidr_block  = "172.16.0.0/28"
-  }
+  spec {
+    selector = {
+      app = "frontend"
+    }
 
-  #   Jenkins use case
-  #   master_authorized_networks_config {
-  #     cidr_blocks {
-  #       cidr_block   = "10.0.0.0/18"
-  #       display_name = "private-subnet-w-jenkins"
-  #     }
-  #   }
+    # Define the ports for your frontend service
+    port {
+      protocol    = "TCP"
+      port        = 80
+      target_port = 8080  # Adjust based on your frontend application's port
+    }
+  }
 }
