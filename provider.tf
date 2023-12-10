@@ -1,9 +1,11 @@
 
 
 provider "google" {
+  credentials = var.GCP_SA_KEY
   project = "smenjivar-dev"
   region  = "us-central1"
 }
+
 
 
 terraform {
