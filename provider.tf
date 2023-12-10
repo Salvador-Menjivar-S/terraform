@@ -2,7 +2,7 @@
 
 
 provider "google" {
-  credentials = jsondecode(var.gcp_sa_key)
+  credentials = file(var.gcp_sa_key)
   project = "smenjivar-dev"
   region  = "us-central1"
 }
