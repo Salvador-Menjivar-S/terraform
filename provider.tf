@@ -1,4 +1,10 @@
 
+# variables.tf
+
+variable "GCP_SA_KEY" {
+  description = "Google Cloud service account key"
+  type        = string
+}
 
 provider "google" {
   credentials = var.GCP_SA_KEY
